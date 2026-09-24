@@ -120,3 +120,35 @@
   background-clip: text;
   color: transparent;
 }
+
+.hue-slider {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  );
+}
+
+.hue-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--color-foreground);
+  border: 2px solid var(--color-background);
+  cursor: pointer;
+}
+
+.hue-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--color-foreground);
+  border: 2px solid var(--color-background);
+  cursor: pointer;
+}
