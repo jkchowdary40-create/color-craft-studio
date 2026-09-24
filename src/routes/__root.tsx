@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { ColorProvider } from "../lib/color-store";
 
 function NotFoundComponent() {
   return (
@@ -62,7 +63,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
           >
             Go home
           </a>
@@ -77,21 +78,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Chroma/lab — Color Picker Studio" },
+      {
+        name: "description",
+        content:
+          "A precise, playful color lab. Pick a hue, generate harmonies, and save the colors that earn their place.",
+      },
+      { property: "og:title", content: "Chroma/lab — Color Picker Studio" },
+      {
+        property: "og:description",
+        content:
+          "Pick colors, generate harmonious palettes, and save your favorite swatches.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
@@ -114,13 +124,72 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const NAV_LINKS = [
+  { to: "/", label: "Picker" },
+  { to: "/palettes", label: "Palettes" },
+  { to: "/saved", label: "Saved" },
+] as const;
+
+function AppHeader() {
+  return (
+    <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 md:px-8">
+        <Link to="/" className="flex items-center gap-2.5">
+          <span className="size-3 rounded-full bg-primary" />
+          <span className="text-sm font-semibold tracking-tight">
+            Chroma<span className="text-muted-foreground">/lab</span>
+          </span>
+        </Link>
+        <nav className="flex items-center gap-1 text-sm">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              activeOptions={{ exact: link.to === "/" }}
+              className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              activeProps={{ className: "bg-secondary text-foreground font-medium" }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <span className="hidden font-mono text-[11px] tracking-wide text-muted-foreground sm:inline">
+          v1.0
+        </span>
+      </div>
+    </header>
+  );
+}
+
+function AppFooter() {
+  return (
+    <footer className="border-t border-border">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row md:px-8">
+        <span className="font-mono text-[11px] text-muted-foreground">
+          Chroma/lab — a color tool, not a dashboard.
+        </span>
+        <span className="font-mono text-[11px] text-muted-foreground">
+          HEX · RGB · HSL · CMYK
+        </span>
+      </div>
+    </footer>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <ColorProvider>
+        <div className="flex min-h-screen flex-col bg-background font-display text-foreground antialiased">
+          <AppHeader />
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <AppFooter />
+        </div>
+      </ColorProvider>
     </QueryClientProvider>
   );
 }
